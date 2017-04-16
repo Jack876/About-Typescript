@@ -327,3 +327,34 @@ let pickedCard = cardPicker();
 
 alert("card: " + pickedCard.card + " of " + pickedCard.suit);
 Now TypeScript knows that createCardPicker expects to be called on a Deck object. That means that this is of type Deck now, not any, so --noImplicitThis will not cause any errors.
+
+
+this parameters in callbacks
+
+You can also run into errors with this in callbacks, when you pass functions to a library that will later call them. Because the library that calls your callback will call it like a normal function, this will be undefined. With some work you can use this parameters to prevent errors with callbacks too. First, the library author needs to annotate the callback type with this:
+
+interface UIElement {
+    addClickListener(onclick: (this: void, e: Event) => void): void;
+}
+this: void means that addClickListener expects onclick to be a function that does not require a this type. Second, annotate your calling code with this:
+
+class Handler {
+    info: string;
+    onClickBad(this: Handler, e: Event) {
+        // oops, used this here. using this callback would crash at runtime
+        this.info = e.message;
+    }
+}
+let h = new Handler();
+uiElement.addClickListener(h.onClickBad); // error!
+With this annotated, you make it explicit that onClickBad must be called on an instance of Handler. Then TypeScript will detect that addClickListener requires a function that has this: void. To fix the error, change the type of this:
+
+class Handler {
+    info: string;
+    onClickGood(this: void, e: Event) {
+        // can't use this here because it's of type void!
+        console.log('clicked!');
+    }
+}
+let h = new Handler();
+uiElement.addClickListener(h.onClickGood);
