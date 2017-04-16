@@ -132,3 +132,16 @@ function addToZ(x, y) {
     return x + y + z;
 }
 
+
+
+Function Types
+Typing the function
+
+Let’s add types to our simple examples from earlier:
+
+function add(x: number, y: number): number {
+    return x + y;
+}
+
+let myAdd = function(x: number, y: number): number { return x+y; };
+We can add types to each of the parameters and then to the function itself to add a return type. TypeScript can figure the return type out by looking at the return st
